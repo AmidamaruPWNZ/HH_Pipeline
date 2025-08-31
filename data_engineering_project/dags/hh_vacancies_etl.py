@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, text
 import logging
 import json
 from pathlib import Path
+import sqlite3
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -20,7 +21,7 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
     'start_date': days_ago(1),
 }
-
+con = sqlite3.connect('hh_vacancies.db')
 
 def extract_hh_data(**kwargs):
     """Extract data from HH.ru API"""
@@ -162,7 +163,7 @@ def load_to_sqlite(**kwargs):
                     UNIQUE(hh_id, load_date)
                 )
             """))
-            conn.commit()
+            con.commit()
 
         # Загружаем данные
         df.to_sql('vacancies', engine, if_exists='append', index=False, method='multi')
