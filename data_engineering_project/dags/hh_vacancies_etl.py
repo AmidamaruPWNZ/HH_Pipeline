@@ -32,20 +32,23 @@ def extract_hh_data(**kwargs):
     try:
         url = "https://api.hh.ru/vacancies"
         all_vacancies = []
+        pages = 10
 
         # Берем только первую страницу для теста
-        params = {
-            'text': 'Data Engineer',
-            'search_field': 'name',
-            'per_page': 20,  # Уменьшаем для теста
-            'page': 0,
-        }
-        headers = {'User-Agent': 'HH-User-Agent'}
+        for page in range(0, pages):
+            params = {
+                'text': 'Data Engineer',
+                'search_field': 'name',
+                'per_page': 50,
+                'page': page,
+            }
 
-        response = requests.get(url, params=params, headers=headers, timeout=30)
-        response.raise_for_status()
-        page_data = response.json()
-        all_vacancies.extend(page_data['items'])
+            headers = {'User-Agent': 'HH-User-Agent'}
+
+            response = requests.get(url, params=params, headers=headers, timeout=30)
+            response.raise_for_status()
+            page_data = response.json()
+            all_vacancies.extend(page_data['items'])
 
         # Сохраняем сырые данные
         raw_data_dir = Path("/opt/airflow/data/raw")
